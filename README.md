@@ -162,6 +162,10 @@ Pokemon data is provided by [PokeAPI](https://pokeapi.co/). This project is an i
 
 PokeAPI requests are read-only. The project uses caching and should make requests responsibly according to the PokeAPI fair-use guidance.
 
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE).
+
 
 ## Preview
 
