@@ -55,6 +55,9 @@ def render_stat_with_bar(stat_name, stat_value, max_value=255):
 
 
 def centered_dataframe(rows: list[dict]) -> None:
+    if not rows:
+        st.info("No data was found for this selection.")
+        return
 
     dataframe = pd.DataFrame(rows)
 
@@ -218,6 +221,26 @@ def render_evolution_chain(root_node: dict) -> None:
                     margin-top: 8px;
                     white-space: normal;
                 }
+
+                @media (max-width: 640px) {
+                    .evolution-row {
+                        justify-content: flex-start;
+                        gap: 8px;
+                    }
+
+                    .evolution-card {
+                        flex-basis: 96px;
+                    }
+
+                    .evolution-card img {
+                        width: 88px;
+                        height: 88px;
+                    }
+
+                    .evolution-arrow {
+                        flex-basis: 76px;
+                    }
+                }
             </style>
             """
         )
@@ -283,6 +306,7 @@ def reset_search():
     st.session_state.pop("machine_moves_loaded", None)
     st.session_state.pop("effectiveness_loaded", None)
     st.session_state.pop("move_options_loaded", None)
+    st.session_state.pop("evolution_loaded", None)
     st.query_params.clear()
 
 
@@ -298,6 +322,7 @@ if (
     st.session_state.pop("machine_moves_loaded", None)
     st.session_state.pop("effectiveness_loaded", None)
     st.session_state.pop("move_options_loaded", None)
+    st.session_state.pop("evolution_loaded", None)
 
 # 2. Input Row with Search and Reset Buttons
 with st.form("pokemon_search_form"):
@@ -323,6 +348,10 @@ st.button(
     use_container_width=True,
 )
 
+if st.button("Clear cached data", key="clear_cached_data"):
+    st.cache_data.clear()
+    st.rerun()
+
 search_target = identifier.strip()
 
 if search_clicked and search_target:
@@ -332,12 +361,14 @@ if search_clicked and search_target:
     st.session_state.pop("machine_moves_loaded", None)
     st.session_state.pop("effectiveness_loaded", None)
     st.session_state.pop("move_options_loaded", None)
+    st.session_state.pop("evolution_loaded", None)
 
 active_identifier = st.session_state.get("search_identifier")
 
 if active_identifier:
     try:
-        pokemon = get_pokemon(active_identifier)
+        with st.spinner("Loading Pokémon data..."):
+            pokemon = get_pokemon(active_identifier)
     except PokemonNotFoundError:
         st.error(f"No Pokemon was found for '{active_identifier}'.")
     except PokeAPIError as error:
@@ -352,11 +383,6 @@ if active_identifier:
             species = load_species(active_identifier)
         except PokeAPIError as error:
             st.warning(f"Species data unavailable: {error}")
-
-        try:
-            evolution_chain = load_evolution_chain(active_identifier)
-        except PokeAPIError as error:
-            st.warning(f"Evolution data unavailable: {error}")
 
         sprite_url = escape(pokemon["Sprite URL"] or "")
         pokemon_name = escape(pokemon["Name"])
@@ -391,6 +417,25 @@ if active_identifier:
         evolution_tab, stats_tab, moves_tab = st.tabs(["Evolution", "Stats", "Moves"])
 
         with evolution_tab:
+            evolution_clicked = st.button(
+                "Load Evolution Chain",
+                key="load_evolution_chain",
+            )
+
+            if evolution_clicked:
+                st.session_state["evolution_loaded"] = True
+
+            if not st.session_state.get("evolution_loaded", False):
+                st.info("Select this option to load the evolution chain.")
+            elif evolution_chain is None:
+                try:
+                    with st.spinner("Loading evolution chain..."):
+                        evolution_chain = load_evolution_chain(
+                            active_identifier
+                        )
+                except PokeAPIError as error:
+                    st.warning(f"Evolution data unavailable: {error}")
+
             if evolution_chain is not None:
                 st.markdown(
                     "<h2 style='text-align: center;'>Evolution Chain</h2>",
@@ -535,7 +580,7 @@ if active_identifier:
                     False,
                 ):
                     load_and_display_moves(
-                        "Level-Up Moves",
+                        f"Level-Up Moves ({selected_version_label})",
                         load_level_up_moves,
                         active_identifier,
                         selected_version_group,
@@ -555,7 +600,7 @@ if active_identifier:
                     False,
                 ):
                     load_and_display_moves(
-                        "TM/HM Moves",
+                        f"TM/HM Moves ({selected_version_label})",
                         load_machine_moves,
                         active_identifier,
                         selected_version_group,

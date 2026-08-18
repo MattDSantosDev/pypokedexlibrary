@@ -295,7 +295,7 @@ def test_get_json_raises_api_error_on_network_failure() -> None:
 
     with (
         patch(
-            "PokePyDex.myfunctions.requests.get",
+            "PokePyDex.myfunctions.HTTP_SESSION.get",
             side_effect=RequestException("connection failed"),
         ),
         pytest.raises(PokeAPIError),
@@ -311,7 +311,7 @@ def test_get_json_raises_not_found_error() -> None:
 
     with (
         patch(
-            "PokePyDex.myfunctions.requests.get",
+            "PokePyDex.myfunctions.HTTP_SESSION.get",
             return_value=response,
         ),
         pytest.raises(PokemonNotFoundError),
@@ -332,7 +332,7 @@ def test_get_json_raises_api_error_for_invalid_json() -> None:
 
     with (
         patch(
-            "PokePyDex.myfunctions.requests.get",
+            "PokePyDex.myfunctions.HTTP_SESSION.get",
             return_value=response,
         ),
         pytest.raises(PokeAPIError),
@@ -346,7 +346,7 @@ from requests import RequestException
 def test_get_json_handles_network_failure() -> None:
     with (
         patch(
-            "PokePyDex.myfunctions.requests.get",
+            "PokePyDex.myfunctions.HTTP_SESSION.get",
             side_effect=RequestException("connection failed"),
         ),
         pytest.raises(PokeAPIError),
@@ -360,7 +360,7 @@ def test_get_json_handles_not_found() -> None:
 
     with (
         patch(
-            "PokePyDex.myfunctions.requests.get",
+            "PokePyDex.myfunctions.HTTP_SESSION.get",
             return_value=response,
         ),
         pytest.raises(PokemonNotFoundError),
@@ -378,7 +378,7 @@ def test_get_json_handles_invalid_json() -> None:
 
     with (
         patch(
-            "PokePyDex.myfunctions.requests.get",
+            "PokePyDex.myfunctions.HTTP_SESSION.get",
             return_value=response,
         ),
         pytest.raises(PokeAPIError),

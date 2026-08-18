@@ -9,7 +9,7 @@ The project demonstrates:
 - HTTP API integration with `requests`;
 - input normalization for names, IDs, and common regional forms;
 - error handling for missing Pokemon and API failures;
-- cached API requests;
+- in-memory and persistent cached API requests;
 - evolution-chain processing, including branching chains;
 - clickable evolution-chain navigation;
 - level-up and TM/HM move tables filtered by game version;
@@ -122,7 +122,9 @@ Open the local URL shown in the terminal, usually:
 http://localhost:8501
 ```
 
-The app displays basic information, species data, evolution chains, base stats, type effectiveness, and optional move tables. Evolution sprites are clickable and open the selected Pokémon. Move data is lazy-loaded: first choose **Show Move Options**, then choose an available game version and load either the Level-Up or TM/HM table. This keeps the initial search faster.
+The app displays basic information, species data, evolution chains, base stats, type effectiveness, and optional move tables. Evolution chains are loaded on demand, and evolution sprites are clickable and open the selected Pokémon. Move data is lazy-loaded: first choose **Show Move Options**, then choose an available game version and load either the Level-Up or TM/HM table. This keeps the initial search faster.
+
+API responses are cached persistently for 24 hours. The app also provides a cache-clearing control for development and troubleshooting.
 
 ## Testing
 

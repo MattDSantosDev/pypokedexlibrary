@@ -2,9 +2,15 @@ from functools import lru_cache
 from typing import Any
 
 import requests
+import requests_cache
 
 BASE_URL = "https://pokeapi.co/api/v2"
 REQUEST_TIMEOUT_SECONDS = 10
+HTTP_SESSION = requests_cache.CachedSession(
+    "pokepydex-http",
+    expire_after=86400,
+    stale_if_error=True,
+)
 
 
 class PokemonNotFoundError(Exception):
@@ -21,7 +27,7 @@ def _get_json(
 ) -> Any:
     """Fetch and decode a JSON response from PokeAPI."""
     try:
-        response = requests.get(
+        response = HTTP_SESSION.get(
             url,
             timeout=REQUEST_TIMEOUT_SECONDS,
         )
