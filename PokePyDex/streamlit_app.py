@@ -358,22 +358,35 @@ if active_identifier:
         except PokeAPIError as error:
             st.warning(f"Evolution data unavailable: {error}")
 
-        _, summary_col, _ = st.columns(3)
+        sprite_url = escape(pokemon["Sprite URL"] or "")
+        pokemon_name = escape(pokemon["Name"])
+        pokemon_types = escape(", ".join(pokemon["Types"]))
 
-        with summary_col:
-            st.image(pokemon["Sprite URL"], width=200)
-            st.write(f"## #{pokemon['ID']} - {pokemon['Name']}")
-            st.write(f"**Type:** {', '.join(pokemon['Types'])}")
-            if species is not None:
-                st.subheader("Pokédex Information")
-                st.write(f"**Genus:** {species['Genus']}")
-                st.write(f"**Capture Rate:** {species['Capture Rate']}")
+        summary_html = f"""
+        <div style="text-align: center; width: 100%;">
+            <img src="{sprite_url}" alt="{pokemon_name}"
+                 style="width: 200px; height: 200px; object-fit: contain;">
+            <h2>#{pokemon['ID']} - {pokemon_name}</h2>
+            <p><strong>Type:</strong> {pokemon_types}</p>
+        """
 
-                if species["Is Legendary"]:
-                    st.warning("Legendary Pokémon")
+        if species is not None:
+            genus = escape(species["Genus"] or "Unknown")
+            summary_html += f"""
+            <h3>Pokédex Information</h3>
+            <p><strong>Genus:</strong> {genus}</p>
+            <p><strong>Capture Rate:</strong> {species['Capture Rate']}</p>
+            """
 
-                if species["Is Mythical"]:
-                    st.warning("Mythical Pokémon")
+        summary_html += "</div>"
+        st.html(summary_html)
+
+        if species is not None:
+            if species["Is Legendary"]:
+                st.warning("Legendary Pokémon")
+
+            if species["Is Mythical"]:
+                st.warning("Mythical Pokémon")
 
         evolution_tab, stats_tab, moves_tab = st.tabs(["Evolution", "Stats", "Moves"])
 
