@@ -1,5 +1,7 @@
 # PokePyDex
 
+[![CI](https://github.com/MattDSantosDev/pypokedexlibrary/actions/workflows/ci.yml/badge.svg)](https://github.com/MattDSantosDev/pypokedexlibrary/actions/workflows/ci.yml)
+
 PokePyDex is a Python client library and Streamlit application for exploring Pokemon data from the [PokeAPI](https://pokeapi.co/).
 
 The project demonstrates:
@@ -9,7 +11,10 @@ The project demonstrates:
 - error handling for missing Pokemon and API failures;
 - cached API requests;
 - evolution-chain processing, including branching chains;
-- level-up and TM/HM move tables;
+- clickable evolution-chain navigation;
+- level-up and TM/HM move tables filtered by game version;
+- type-effectiveness calculations, including immunities and resistances;
+- Pokémon-specific game-version availability;
 - automated tests with `pytest`;
 - an optional Streamlit frontend.
 
@@ -72,8 +77,10 @@ Common regional names are normalized to identifiers recognized by PokeAPI. For e
 | `get_pokemon(name_or_id)` | Returns basic Pokemon data, types, stats, and sprite URL. |
 | `get_pokemon_species(name_or_id)` | Returns genus, capture rate, and legendary or mythical status. |
 | `get_evolution_chain(name_or_id)` | Returns a display-friendly evolution tree with sprites and requirements. |
-| `get_level_up_moves(name_or_id)` | Returns moves learned by leveling up. |
-| `get_machine_moves(name_or_id)` | Returns TM/HM moves with type and category. |
+| `get_level_up_moves(name_or_id, version_group=None)` | Returns moves learned by leveling up, optionally filtered by game version. |
+| `get_machine_moves(name_or_id, version_group=None)` | Returns TM/HM moves with type and category, optionally filtered by game version. |
+| `get_type_effectiveness(name_or_id)` | Returns attack-type multipliers against the Pokémon, such as `2x`, `0.5x`, and `0x`. |
+| `get_available_version_groups(name_or_id)` | Returns the game-version groups in which the Pokémon appears. |
 | `normalize_identifier(name_or_id)` | Converts user input into a PokeAPI-compatible identifier. |
 
 Move results use these categories:
@@ -115,7 +122,7 @@ Open the local URL shown in the terminal, usually:
 http://localhost:8501
 ```
 
-The app displays basic information, species data, evolution chains, base stats, and optional move tables. Move tables are loaded only after selecting the move-loading button, so the initial search can return faster.
+The app displays basic information, species data, evolution chains, base stats, type effectiveness, and optional move tables. Evolution sprites are clickable and open the selected Pokémon. Move data is lazy-loaded: first choose **Show Move Options**, then choose an available game version and load either the Level-Up or TM/HM table. This keeps the initial search faster.
 
 ## Testing
 
@@ -142,7 +149,10 @@ PokePyDex/
 	streamlit_app.py     Streamlit frontend
 tests/
 	test_myfunctions.py  Automated tests
-setup.py                 Package metadata and dependencies
+assets/                  README preview images
+.github/workflows/       GitHub Actions CI workflow
+pyproject.toml            Package metadata and dependencies
+setup.py                 Legacy packaging compatibility
 README.md                Project documentation
 ```
 
@@ -151,3 +161,13 @@ README.md                Project documentation
 Pokemon data is provided by [PokeAPI](https://pokeapi.co/). This project is an independent client and is not affiliated with PokeAPI, Nintendo, or The Pokemon Company.
 
 PokeAPI requests are read-only. The project uses caching and should make requests responsibly according to the PokeAPI fair-use guidance.
+
+
+## Preview
+
+![PokePyDex Pokemon Basic Data](assets/pokepydex-basicdata.png)
+![PokePyDex Evolution Chain](assets/pokepydex-evolutionchain.png)
+![PokePyDex Moves Interface](assets/pokepydex-moveinterface.png)
+![PokePyDex Moves Filter by Game](assets/pokepydex-move-game-selection.png)
+![PokePyDex Moves Preview](assets/pokepydex-movepreview.png)
+![PokePyDex Base Stats and Effectiveness](assets/pokepydex-stats.png)
