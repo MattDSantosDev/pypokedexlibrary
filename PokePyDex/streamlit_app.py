@@ -404,6 +404,20 @@ if active_identifier:
             <p><strong>Capture Rate:</strong> {species['Capture Rate']}</p>
             """
 
+            variants = species.get("Variants", [])
+            if len(variants) > 1:
+                variant_links = " ".join(
+                    (
+                        f'<a href="?pokemon={quote(variant["Identifier"])}">'
+                        f'{escape(variant["Name"])}</a>'
+                    )
+                    for variant in variants
+                    if variant["Identifier"] != active_identifier
+                )
+                summary_html += f"""
+                <p><strong>Variants:</strong> {variant_links}</p>
+                """
+
         summary_html += "</div>"
         st.html(summary_html)
 

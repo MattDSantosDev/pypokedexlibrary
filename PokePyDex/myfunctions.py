@@ -409,6 +409,15 @@ def get_pokemon_species(name_or_id: str | int) -> dict[str, Any]:
         None,
     )
 
+    variants = [
+        {
+            "Identifier": variety["pokemon"]["name"],
+            "Name": format_label(variety["pokemon"]["name"]),
+            "Is Default": variety["is_default"],
+        }
+        for variety in species_data.get("varieties", [])
+    ]
+
     return {
         "ID": species_data["id"],
         "Name": format_label(species_data["name"]),
@@ -417,6 +426,7 @@ def get_pokemon_species(name_or_id: str | int) -> dict[str, Any]:
         "Genus": english_genus,
         "Capture Rate": species_data["capture_rate"],
         "Evolution Chain URL": species_data["evolution_chain"]["url"],
+        "Variants": variants,
     }
 
 

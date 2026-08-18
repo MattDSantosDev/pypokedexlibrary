@@ -10,6 +10,7 @@ from PokePyDex.myfunctions import (
     get_available_version_groups,
     get_level_up_moves,
     get_machine_moves,
+    get_pokemon_species,
     get_type_effectiveness,
 )
 
@@ -251,6 +252,55 @@ def test_get_available_version_groups() -> None:
         available_groups = get_available_version_groups("pichu")
 
     assert available_groups == {"gold-silver", "crystal-clear"}
+
+
+def test_get_pokemon_species_returns_variants() -> None:
+    species_data = {
+        "id": 25,
+        "name": "pikachu",
+        "is_legendary": False,
+        "is_mythical": False,
+        "genera": [],
+        "capture_rate": 190,
+        "evolution_chain": {
+            "url": "https://pokeapi.co/api/v2/evolution-chain/10/",
+        },
+        "varieties": [
+            {
+                "is_default": True,
+                "pokemon": {
+                    "name": "pikachu",
+                    "url": "https://pokeapi.co/api/v2/pokemon/25/",
+                },
+            },
+            {
+                "is_default": False,
+                "pokemon": {
+                    "name": "pikachu-cosplay",
+                    "url": "https://pokeapi.co/api/v2/pokemon/10001/",
+                },
+            },
+        ],
+    }
+
+    with patch(
+        "PokePyDex.myfunctions._get_json",
+        return_value=species_data,
+    ):
+        species = get_pokemon_species("pikachu")
+
+    assert species["Variants"] == [
+        {
+            "Identifier": "pikachu",
+            "Name": "Pikachu",
+            "Is Default": True,
+        },
+        {
+            "Identifier": "pikachu-cosplay",
+            "Name": "Pikachu Cosplay",
+            "Is Default": False,
+        },
+    ]
 
 
 def test_get_type_effectiveness_handles_immunity() -> None:
